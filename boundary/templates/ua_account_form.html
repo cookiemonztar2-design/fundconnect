@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}{{ action }} Account{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">{{ action }} User Account</h1>
+  <a href="{{ url_for('ua_accounts') }}" class="btn">← Back</a>
+</div>
+
+<div style="background: #fff; border: 1px solid #e8e6e0; border-radius: 12px; padding: 28px; max-width: 480px;">
+  <form method="POST">
+
+    <div class="form-group">
+      <label>Username <span style="color: #d85a30;">*</span></label>
+      <input type="text" name="username" value="{{ form.username or '' }}" required>
+    </div>
+
+    <div class="form-group">
+      <label>
+        Password
+        {% if action == "Edit" %}
+          <span style="color: #aaa; font-weight: 400;">(leave blank to keep current)</span>
+        {% else %}
+          <span style="color: #d85a30;">*</span>
+        {% endif %}
+      </label>
+      <input type="password" name="password"
+             {% if action == "Create" %}required{% endif %}
+             placeholder="Min 6 characters">
+    </div>
+
+    <div class="form-group">
+      <label>Role <span style="color: #d85a30;">*</span></label>
+      <select name="role">
+        {% for r in ["Fund Raiser", "Donee", "Platform Manager"] %}
+          <option value="{{ r }}" {{ "selected" if (form.role or "") == r }}>{{ r }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+      <a href="{{ url_for('ua_accounts') }}" class="btn">Cancel</a>
+      <button type="submit" class="btn btn-primary" style="width: auto;">
+        {{ action }} Account
+      </button>
+    </div>
+
+  </form>
+</div>
+
+{% endblock %}

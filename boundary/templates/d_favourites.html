@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}My Favourites{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">My Favourite Activities</h1>
+</div>
+
+<form method="GET" style="margin-bottom: 20px; display: flex; gap: 8px;">
+  <input type="text" name="q" value="{{ q }}" placeholder="Search your favourites…"
+         style="flex: 1; padding: 9px 12px; border-radius: 8px; border: 1px solid #ddd; font-size: 14px;">
+  <button class="btn" type="submit">Search</button>
+  {% if q %}
+    <a href="{{ url_for('d_favourites') }}" class="btn">Clear</a>
+  {% endif %}
+</form>
+
+{% if activities %}
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Category</th>
+        <th>Target</th>
+        <th>Deadline</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for a in activities %}
+      <tr>
+        <td><strong>{{ a.title }}</strong></td>
+        <td>{{ a.category_name or '—' }}</td>
+        <td>${{ '{:,.0f}'.format(a.target_amount) }}</td>
+        <td>{{ a.deadline }}</td>
+        <td>
+          <form method="POST" action="{{ url_for('d_toggle_favourite', aid=a.id) }}">
+            <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="empty-state">
+  <div class="empty-icon">❤️</div>
+  <p>No favourites yet. <a href="{{ url_for('d_browse') }}" style="color: #1d9e75;">Browse activities</a>.</p>
+</div>
+{% endif %}
+
+{% endblock %}

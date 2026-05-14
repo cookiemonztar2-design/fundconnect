@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}FundConnect{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">FundConnect</div>
+
+    <div class="sidebar-user">
+      <p class="user-name">{{ session.username }}</p>
+      <p class="user-role">{{ session.role }}</p>
+    </div>
+
+    <nav>
+      {% if session.role == "User Admin" %}
+        <a href="{{ url_for('ua_accounts') }}" class="nav-item">User Accounts</a>
+        <a href="{{ url_for('ua_profiles') }}" class="nav-item">User Profiles</a>
+      {% elif session.role == "Fund Raiser" %}
+        <a href="{{ url_for('fr_activities') }}" class="nav-item">My Activities</a>
+      {% elif session.role == "Donee" %}
+        <a href="{{ url_for('d_browse') }}" class="nav-item">Browse Activities</a>
+        <a href="{{ url_for('d_favourites') }}" class="nav-item">Favourites</a>
+        <a href="{{ url_for('d_history') }}" class="nav-item">Completed History</a>
+      {% elif session.role == "Platform Manager" %}
+        <a href="#" class="nav-item">FRA Categories</a>
+      {% endif %}
+    </nav>
+
+    <a href="{{ url_for('logout') }}" class="nav-item logout">Logout</a>
+  </aside>
+
+  <!-- Main content -->
+  <main class="main">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+
+  </main>
+
+</div>
+
+</body>
+</html>

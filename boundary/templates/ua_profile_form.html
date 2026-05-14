@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}{{ action }} Profile{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">{{ action }} User Profile</h1>
+  <a href="{{ url_for('ua_profiles') }}" class="btn">← Back</a>
+</div>
+
+<div style="background: #fff; border: 1px solid #e8e6e0; border-radius: 12px; padding: 28px; max-width: 480px;">
+  <form method="POST">
+
+    <div class="form-group">
+      <label>Full Name <span style="color: #d85a30;">*</span></label>
+      <input type="text" name="name" value="{{ form.name or '' }}" required
+             placeholder="e.g. John Smith">
+    </div>
+
+    <div class="form-group">
+      <label>Role <span style="color: #d85a30;">*</span></label>
+      <select name="role">
+        {% for r in ["Fund Raiser", "Donee", "Platform Manager"] %}
+          <option value="{{ r }}" {{ "selected" if (form.role or "") == r }}>{{ r }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Email <span style="color: #d85a30;">*</span></label>
+      <input type="email" name="email" value="{{ form.email or '' }}" required
+             placeholder="e.g. john@example.com">
+    </div>
+
+    <div class="form-group">
+      <label>Contact Number</label>
+      <input type="text" name="contact" value="{{ form.contact or '' }}"
+             placeholder="e.g. 91234567">
+    </div>
+
+    <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+      <a href="{{ url_for('ua_profiles') }}" class="btn">Cancel</a>
+      <button type="submit" class="btn btn-primary" style="width: auto;">
+        {{ action }} Profile
+      </button>
+    </div>
+
+  </form>
+</div>
+
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}My Activities{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">My Fundraising Activities</h1>
+  <a href="{{ url_for('fr_activity_create') }}" class="btn btn-primary">+ Create Activity</a>
+</div>
+
+<form method="GET" style="margin-bottom: 20px; display: flex; gap: 8px;">
+  <input type="text" name="q" value="{{ q }}" placeholder="Search by title or category…"
+         style="flex: 1; padding: 9px 12px; border-radius: 8px; border: 1px solid #ddd; font-size: 14px;">
+  <button class="btn" type="submit">Search</button>
+  {% if q %}
+    <a href="{{ url_for('fr_activities') }}" class="btn">Clear</a>
+  {% endif %}
+</form>
+
+{% if activities %}
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Category</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for a in activities %}
+      <tr style="cursor: pointer;"
+          onclick="window.location='{{ url_for('fr_activity_view', aid=a.id) }}'">
+        <td><strong>{{ a.title }}</strong></td>
+        <td>{{ a.category_name or '—' }}</td>
+        <td><span class="badge badge-active">{{ a.status }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="empty-state">
+  <div class="empty-icon">📋</div>
+  <p>No activities found.
+    <a href="{{ url_for('fr_activity_create') }}" style="color: #1d9e75;">Create one</a>.
+  </p>
+</div>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}User Profiles{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">User Profiles</h1>
+  <a href="{{ url_for('ua_profile_create') }}" class="btn btn-primary">+ Create Profile</a>
+</div>
+
+<form method="GET" style="margin-bottom: 20px; display: flex; gap: 8px;">
+  <input type="text" name="q" value="{{ q }}" placeholder="Search by name, role or email…"
+         style="flex: 1; padding: 9px 12px; border-radius: 8px; border: 1px solid #ddd; font-size: 14px;">
+  <button class="btn" type="submit">Search</button>
+  {% if q %}
+    <a href="{{ url_for('ua_profiles') }}" class="btn">Clear</a>
+  {% endif %}
+</form>
+
+{% if profiles %}
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in profiles %}
+      <tr style="cursor: pointer;"
+          onclick="window.location='{{ url_for('ua_profile_view', pid=p.id) }}'">
+        <td style="color: #888;">{{ p.id }}</td>
+        <td><strong>{{ p.name }}</strong></td>
+        <td>
+          {% if p.status == "Active" %}
+            <span class="badge badge-active">Active</span>
+          {% else %}
+            <span class="badge badge-suspended">Suspended</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="empty-state">
+  <div class="empty-icon">👤</div>
+  <p>No profiles found.</p>
+</div>
+{% endif %}
+
+{% endblock %}
