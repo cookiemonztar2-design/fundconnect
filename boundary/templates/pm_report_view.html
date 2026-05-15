@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}{{ report.label }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">{{ report.label }}</h1>
+  <a href="{{ url_for('pm_reports') }}" class="btn">← Back</a>
+</div>
+
+<!-- Stats -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 28px;">
+  {% for key, val in report.stats.items() %}
+  <div style="background: #fff; border: 1px solid #e8e6e0; border-radius: 12px; padding: 18px;">
+    <p style="font-size: 12px; color: #888; margin-bottom: 6px;">{{ key }}</p>
+    <p style="font-size: 24px; font-weight: 500; color: #1d9e75;">{{ val }}</p>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Recent logs -->
+<div style="background: #fff; border: 1px solid #e8e6e0; border-radius: 12px; padding: 24px;">
+  <h2 style="font-size: 16px; font-weight: 500; margin-bottom: 16px;">Recent Activity</h2>
+
+  {% if report.logs %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Event</th>
+          <th>Description</th>
+          <th>Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for log in report.logs %}
+        <tr>
+          <td>
+            <span style="background: #f0f9f5; color: #085041; padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 500;">
+              {{ log.event_type }}
+            </span>
+          </td>
+          <td style="color: #555;">{{ log.description or '—' }}</td>
+          <td style="font-size: 12px; color: #888;">{{ log.created_at[:16] if log.created_at else '—' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">📊</div>
+    <p>No activity recorded in this period.</p>
+  </div>
+  {% endif %}
+
+</div>
+
+{% endblock %}

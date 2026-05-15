@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Reports{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">System Reports</h1>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+
+  <div style="background: #fff; border: 1px solid #e8e6e0; border-radius: 12px; padding: 28px; text-align: center;">
+    <div style="font-size: 36px; margin-bottom: 12px;">📅</div>
+    <h3 style="font-size: 16px; font-weight: 500; margin-bottom: 8px;">Daily Report</h3>
+    <p style="font-size: 13px; color: #888; margin-bottom: 18px;">Activity from the last 24 hours</p>
+    <a href="{{ url_for('pm_report_view', period='daily') }}" class="btn btn-primary" style="width: auto;">
+      Generate
+    </a>
+  </div>
+
+  <div style="background: #fff; border: 1px solid #e8e6e0; border-radius: 12px; padding: 28px; text-align: center;">
+    <div style="font-size: 36px; margin-bottom: 12px;">📆</div>
+    <h3 style="font-size: 16px; font-weight: 500; margin-bottom: 8px;">Weekly Report</h3>
+    <p style="font-size: 13px; color: #888; margin-bottom: 18px;">Activity from the last 7 days</p>
+    <a href="{{ url_for('pm_report_view', period='weekly') }}" class="btn btn-primary" style="width: auto;">
+      Generate
+    </a>
+  </div>
+
+  <div style="background: #fff; border: 1px solid #e8e6e0; border-radius: 12px; padding: 28px; text-align: center;">
+    <div style="font-size: 36px; margin-bottom: 12px;">🗓️</div>
+    <h3 style="font-size: 16px; font-weight: 500; margin-bottom: 8px;">Monthly Report</h3>
+    <p style="font-size: 13px; color: #888; margin-bottom: 18px;">Activity from the last 30 days</p>
+    <a href="{{ url_for('pm_report_view', period='monthly') }}" class="btn btn-primary" style="width: auto;">
+      Generate
+    </a>
+  </div>
+
+</div>
+
+{% endblock %}

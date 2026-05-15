@@ -66,6 +66,14 @@ def init_db():
                 created_at  TEXT DEFAULT (datetime('now')),
                 UNIQUE(donee_id, activity_id)
             );
+
+            CREATE TABLE IF NOT EXISTS system_log (
+                id          INTEGER PRIMARY KEY AUTOINCREMENT,
+                event_type  TEXT NOT NULL,
+                description TEXT,
+                user_id     INTEGER,
+                created_at  TEXT DEFAULT (datetime('now'))
+            );
         """)
         db.commit()
 
@@ -292,6 +300,57 @@ class FRACategoryEntity:
                 (category_id,)
             ).fetchone()
 
+    @staticmethod
+    def search(query):
+        like = f"%{query}%"
+        with _get_db() as db:
+            return db.execute(
+                """SELECT * FROM fra_category
+                   WHERE name LIKE ? OR description LIKE ?
+                   ORDER BY name""",
+                (like, like)
+            ).fetchall()
+
+    @staticmethod
+    def name_exists(name, exclude_id=None):
+        with _get_db() as db:
+            if exclude_id:
+                return db.execute(
+                    "SELECT id FROM fra_category WHERE name=? AND id!=?",
+                    (name, exclude_id)
+                ).fetchone() is not None
+            return db.execute(
+                "SELECT id FROM fra_category WHERE name=?",
+                (name,)
+            ).fetchone() is not None
+
+    @staticmethod
+    def create(name, description):
+        with _get_db() as db:
+            db.execute(
+                "INSERT INTO fra_category (name, description) VALUES (?, ?)",
+                (name, description)
+            )
+            db.commit()
+
+    @staticmethod
+    def update(category_id, name, description):
+        with _get_db() as db:
+            db.execute(
+                "UPDATE fra_category SET name=?, description=? WHERE id=?",
+                (name, description, category_id)
+            )
+            db.commit()
+
+    @staticmethod
+    def delete(category_id):
+        with _get_db() as db:
+            db.execute(
+                "DELETE FROM fra_category WHERE id=?",
+                (category_id,)
+            )
+            db.commit()
+
 
 class FundraisingActivityEntity:
 
@@ -440,6 +499,41 @@ class FundraisingActivityEntity:
             )
             db.commit()
 
+    @staticmethod
+    def get_completed_by_fundraiser(fundraiser_id):
+        with _get_db() as db:
+            return db.execute(
+                """SELECT fa.*, fc.name AS category_name
+                   FROM fundraising_activity fa
+                   LEFT JOIN fra_category fc ON fa.category_id = fc.id
+                   WHERE fa.fundraiser_id=? AND fa.status='Completed'
+                   ORDER BY fa.deadline DESC""",
+                (fundraiser_id,)
+            ).fetchall()
+
+    @staticmethod
+    def search_completed_by_fundraiser(fundraiser_id, query):
+        like = f"%{query}%"
+        with _get_db() as db:
+            return db.execute(
+                """SELECT fa.*, fc.name AS category_name
+                   FROM fundraising_activity fa
+                   LEFT JOIN fra_category fc ON fa.category_id = fc.id
+                   WHERE fa.fundraiser_id=? AND fa.status='Completed'
+                   AND (fa.title LIKE ? OR fc.name LIKE ?)
+                   ORDER BY fa.deadline DESC""",
+                (fundraiser_id, like, like)
+            ).fetchall()
+
+    @staticmethod
+    def set_status(activity_id, status):
+        with _get_db() as db:
+            db.execute(
+                "UPDATE fundraising_activity SET status=? WHERE id=?",
+                (status, activity_id)
+            )
+            db.commit()
+
 
 class FavouriteEntity:
 
@@ -506,3 +600,57 @@ class FavouriteEntity:
                 (donee_id, activity_id)
             )
             db.commit()
+
+
+class SystemLogEntity:
+
+    @staticmethod
+    def add(event_type, description, user_id=None):
+        with _get_db() as db:
+            db.execute(
+                "INSERT INTO system_log (event_type, description, user_id) VALUES (?, ?, ?)",
+                (event_type, description, user_id)
+            )
+            db.commit()
+
+    @staticmethod
+    def get_recent(days, limit=20):
+        with _get_db() as db:
+            return db.execute(
+                f"""SELECT * FROM system_log
+                    WHERE created_at >= datetime('now', '-{int(days)} days')
+                    ORDER BY created_at DESC LIMIT ?""",
+                (limit,)
+            ).fetchall()
+
+    @staticmethod
+    def count_event(event_type, days):
+        with _get_db() as db:
+            return db.execute(
+                f"""SELECT COUNT(*) FROM system_log
+                    WHERE event_type=?
+                    AND created_at >= datetime('now', '-{int(days)} days')""",
+                (event_type,)
+            ).fetchone()[0]
+
+    @staticmethod
+    def count_new_rows(table, days):
+        with _get_db() as db:
+            return db.execute(
+                f"""SELECT COUNT(*) FROM {table}
+                    WHERE created_at >= datetime('now', '-{int(days)} days')"""
+            ).fetchone()[0]
+
+    @staticmethod
+    def total_raised():
+        with _get_db() as db:
+            return db.execute(
+                "SELECT COALESCE(SUM(amount_raised), 0) FROM fundraising_activity"
+            ).fetchone()[0]
+
+    @staticmethod
+    def count_active_fras():
+        with _get_db() as db:
+            return db.execute(
+                "SELECT COUNT(*) FROM fundraising_activity WHERE status='Active'"
+            ).fetchone()[0]

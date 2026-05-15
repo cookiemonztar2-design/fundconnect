@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}FRA Categories{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">FRA Categories</h1>
+  <a href="{{ url_for('pm_category_create') }}" class="btn btn-primary">+ Create Category</a>
+</div>
+
+<form method="GET" style="margin-bottom: 20px; display: flex; gap: 8px;">
+  <input type="text" name="q" value="{{ q }}" placeholder="Search by name or description…"
+         style="flex: 1; padding: 9px 12px; border-radius: 8px; border: 1px solid #ddd; font-size: 14px;">
+  <button class="btn" type="submit">Search</button>
+  {% if q %}
+    <a href="{{ url_for('pm_categories') }}" class="btn">Clear</a>
+  {% endif %}
+</form>
+
+{% if categories %}
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for c in categories %}
+      <tr style="cursor: pointer;"
+          onclick="window.location='{{ url_for('pm_category_view', cid=c.id) }}'">
+        <td style="color: #888;">{{ c.id }}</td>
+        <td><strong>{{ c.name }}</strong></td>
+        <td style="color: #555;">{{ c.description or '—' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="empty-state">
+  <div class="empty-icon">🏷️</div>
+  <p>No categories found.</p>
+</div>
+{% endif %}
+
+{% endblock %}

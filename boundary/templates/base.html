@@ -24,12 +24,14 @@
         <a href="{{ url_for('ua_profiles') }}" class="nav-item">User Profiles</a>
       {% elif session.role == "Fund Raiser" %}
         <a href="{{ url_for('fr_activities') }}" class="nav-item">My Activities</a>
+        <a href="{{ url_for('fr_completed') }}" class="nav-item">Completed Activities</a>
       {% elif session.role == "Donee" %}
         <a href="{{ url_for('d_browse') }}" class="nav-item">Browse Activities</a>
         <a href="{{ url_for('d_favourites') }}" class="nav-item">Favourites</a>
         <a href="{{ url_for('d_history') }}" class="nav-item">Completed History</a>
       {% elif session.role == "Platform Manager" %}
-        <a href="#" class="nav-item">FRA Categories</a>
+        <a href="{{ url_for('pm_categories') }}" class="nav-item">FRA Categories</a>
+        <a href="{{ url_for('pm_reports') }}" class="nav-item">Reports</a>
       {% endif %}
     </nav>
 

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Completed Activities{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">Completed Activities</h1>
+</div>
+
+<form method="GET" style="margin-bottom: 20px; display: flex; gap: 8px;">
+  <input type="text" name="q" value="{{ q }}" placeholder="Search by title or category…"
+         style="flex: 1; padding: 9px 12px; border-radius: 8px; border: 1px solid #ddd; font-size: 14px;">
+  <button class="btn" type="submit">Search</button>
+  {% if q %}
+    <a href="{{ url_for('fr_completed') }}" class="btn">Clear</a>
+  {% endif %}
+</form>
+
+{% if activities %}
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Category</th>
+        <th>Raised</th>
+        <th>Deadline</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for a in activities %}
+      <tr style="cursor: pointer;"
+          onclick="window.location='{{ url_for('fr_completed_view', aid=a.id) }}'">
+        <td><strong>{{ a.title }}</strong></td>
+        <td>{{ a.category_name or '—' }}</td>
+        <td>${{ '{:,.0f}'.format(a.amount_raised) }}</td>
+        <td>{{ a.deadline }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="empty-state">
+  <div class="empty-icon">✅</div>
+  <p>No completed activities yet.</p>
+</div>
+{% endif %}
+
+{% endblock %}

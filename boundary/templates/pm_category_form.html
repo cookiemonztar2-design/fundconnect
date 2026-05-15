@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}{{ action }} Category{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">{{ action }} FRA Category</h1>
+  <a href="{{ url_for('pm_categories') }}" class="btn">← Back</a>
+</div>
+
+<div style="background: #fff; border: 1px solid #e8e6e0; border-radius: 12px; padding: 28px; max-width: 480px;">
+  <form method="POST">
+
+    <div class="form-group">
+      <label>Category Name <span style="color: #d85a30;">*</span></label>
+      <input type="text" name="name" value="{{ form.name or '' }}" required
+             placeholder="e.g. Environment">
+    </div>
+
+    <div class="form-group">
+      <label>Description</label>
+      <textarea name="description"
+                placeholder="Brief description of this category…">{{ form.description or '' }}</textarea>
+    </div>
+
+    <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+      <a href="{{ url_for('pm_categories') }}" class="btn">Cancel</a>
+      <button type="submit" class="btn btn-primary" style="width: auto;">
+        {{ action }} Category
+      </button>
+    </div>
+
+  </form>
+</div>
+
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}{{ category.name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">{{ category.name }}</h1>
+  <a href="{{ url_for('pm_categories') }}" class="btn">← Back</a>
+</div>
+
+<div style="background: #fff; border: 1px solid #e8e6e0; border-radius: 12px; padding: 28px; max-width: 480px;">
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+    <div>
+      <p style="font-size: 12px; color: #888; margin-bottom: 4px;">ID</p>
+      <p style="font-weight: 500;">{{ category.id }}</p>
+    </div>
+    <div>
+      <p style="font-size: 12px; color: #888; margin-bottom: 4px;">Name</p>
+      <p style="font-weight: 500;">{{ category.name }}</p>
+    </div>
+    <div style="grid-column: span 2;">
+      <p style="font-size: 12px; color: #888; margin-bottom: 4px;">Description</p>
+      <p style="font-weight: 500;">{{ category.description or '—' }}</p>
+    </div>
+    <div>
+      <p style="font-size: 12px; color: #888; margin-bottom: 4px;">Created</p>
+      <p style="font-weight: 500;">{{ category.created_at[:10] }}</p>
+    </div>
+  </div>
+
+  <div style="display: flex; gap: 10px;">
+    <a href="{{ url_for('pm_category_edit', cid=category.id) }}" class="btn">Edit</a>
+    <form method="POST" action="{{ url_for('pm_category_delete', cid=category.id) }}"
+          onsubmit="return confirm('Delete this category? This cannot be undone.')">
+      <button type="submit" class="btn btn-danger">Delete</button>
+    </form>
+  </div>
+
+</div>
+
+{% endblock %}

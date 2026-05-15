@@ -3,8 +3,9 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from flask import Flask, render_template, request, redirect, url_for, session, flash
-from entity.entities import init_db
-from control.controllers import AuthController, UserAccountController, UserProfileController, FundraisingActivityController, DoneeController
+from entity.entities import init_db, SystemLogEntity
+from control.controllers import AuthController, UserAccountController, UserProfileController, FundraisingActivityController, DoneeController, FRACategoryController, ReportController
+
 
 app = Flask(
     __name__,
@@ -30,6 +31,7 @@ def login():
             session["user_id"]  = result["data"]["id"]
             session["username"] = result["data"]["username"]
             session["role"]     = result["data"]["role"]
+            SystemLogEntity.add("login", f"User '{result['data']['username']}' logged in", result["data"]["id"])
             return redirect(url_for("dashboard"))
         else:
             flash(result["message"], "error")
@@ -47,7 +49,9 @@ def dashboard():
         return redirect(url_for("fr_activities"))
     elif role == "Donee":
         return redirect(url_for("d_browse"))
-    return f"Welcome {session['username']}! Role: {role} — more pages coming soon."
+    elif role == "Platform Manager":
+        return redirect(url_for("pm_categories"))
+    return redirect(url_for("login"))
 
 @app.route("/logout")
 def logout():
@@ -351,6 +355,125 @@ def d_history_view(aid):
         flash(result["message"], "error")
         return redirect(url_for("d_history"))
     return render_template("d_history_view.html", activity=result["data"])
+
+
+@app.route("/manager/categories")
+def pm_categories():
+    if "user_id" not in session or session["role"] != "Platform Manager":
+        return redirect(url_for("login"))
+    q = request.args.get("q", "").strip()
+    result = FRACategoryController.list_categories(q or None)
+    return render_template("pm_categories.html", categories=result["data"], q=q)
+
+
+@app.route("/manager/categories/<int:cid>")
+def pm_category_view(cid):
+    if "user_id" not in session or session["role"] != "Platform Manager":
+        return redirect(url_for("login"))
+    result = FRACategoryController.view_category(cid)
+    if not result["success"]:
+        flash(result["message"], "error")
+        return redirect(url_for("pm_categories"))
+    return render_template("pm_category_view.html", category=result["data"])
+
+
+@app.route("/manager/categories/create", methods=["GET", "POST"])
+def pm_category_create():
+    if "user_id" not in session or session["role"] != "Platform Manager":
+        return redirect(url_for("login"))
+    if request.method == "POST":
+        result = FRACategoryController.create_category(
+            name=request.form.get("name", ""),
+            description=request.form.get("description", ""),
+        )
+        if result["success"]:
+            flash(result["message"], "success")
+            return redirect(url_for("pm_categories"))
+        else:
+            flash(result["message"], "error")
+    return render_template("pm_category_form.html",
+                           form=request.form if request.method == "POST" else {},
+                           action="Create")
+
+
+@app.route("/manager/categories/<int:cid>/edit", methods=["GET", "POST"])
+def pm_category_edit(cid):
+    if "user_id" not in session or session["role"] != "Platform Manager":
+        return redirect(url_for("login"))
+    if request.method == "POST":
+        result = FRACategoryController.update_category(
+            category_id=cid,
+            name=request.form.get("name", ""),
+            description=request.form.get("description", ""),
+        )
+        if result["success"]:
+            flash(result["message"], "success")
+            return redirect(url_for("pm_categories"))
+        else:
+            flash(result["message"], "error")
+            form_data = request.form
+    else:
+        view_result = FRACategoryController.view_category(cid)
+        if not view_result["success"]:
+            flash(view_result["message"], "error")
+            return redirect(url_for("pm_categories"))
+        form_data = view_result["data"]
+    return render_template("pm_category_form.html",
+                           form=form_data, action="Edit", category_id=cid)
+
+
+@app.route("/manager/categories/<int:cid>/delete", methods=["POST"])
+def pm_category_delete(cid):
+    if "user_id" not in session or session["role"] != "Platform Manager":
+        return redirect(url_for("login"))
+    result = FRACategoryController.delete_category(cid)
+    flash(result["message"], "success" if result["success"] else "error")
+    return redirect(url_for("pm_categories"))
+
+@app.route("/manager/reports")
+def pm_reports():
+    if "user_id" not in session or session["role"] != "Platform Manager":
+        return redirect(url_for("login"))
+    return render_template("pm_reports.html")
+
+
+@app.route("/manager/reports/<period>")
+def pm_report_view(period):
+    if "user_id" not in session or session["role"] != "Platform Manager":
+        return redirect(url_for("login"))
+    result = ReportController.generate(period)
+    if not result["success"]:
+        flash(result["message"], "error")
+        return redirect(url_for("pm_reports"))
+    return render_template("pm_report_view.html", report=result["data"])
+
+@app.route("/fundraiser/completed")
+def fr_completed():
+    if "user_id" not in session or session["role"] != "Fund Raiser":
+        return redirect(url_for("login"))
+    q = request.args.get("q", "").strip()
+    result = FundraisingActivityController.list_completed(session["user_id"], q or None)
+    return render_template("fr_completed.html", activities=result["data"], q=q)
+
+
+@app.route("/fundraiser/completed/<int:aid>")
+def fr_completed_view(aid):
+    if "user_id" not in session or session["role"] != "Fund Raiser":
+        return redirect(url_for("login"))
+    result = FundraisingActivityController.view_completed(aid, session["user_id"])
+    if not result["success"]:
+        flash(result["message"], "error")
+        return redirect(url_for("fr_completed"))
+    return render_template("fr_completed_view.html", activity=result["data"])
+
+
+@app.route("/fundraiser/activities/<int:aid>/complete", methods=["POST"])
+def fr_activity_complete(aid):
+    if "user_id" not in session or session["role"] != "Fund Raiser":
+        return redirect(url_for("login"))
+    result = FundraisingActivityController.mark_completed(aid, session["user_id"])
+    flash(result["message"], "success" if result["success"] else "error")
+    return redirect(url_for("fr_completed"))
 
 if __name__ == "__main__":
     init_db()
