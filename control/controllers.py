@@ -241,9 +241,15 @@ class FundraisingActivityController:
         return _ok(message="Activity deleted successfully.")
 
     @staticmethod
-    def list_completed(fundraiser_id, query=None):
-        if query:
-            rows = FundraisingActivityEntity.search_completed_by_fundraiser(fundraiser_id, query)
+    def list_completed(fundraiser_id, category_id=None, date_from=None, date_to=None):
+        # If any filter is provided, use the search method
+        if category_id or date_from or date_to:
+            rows = FundraisingActivityEntity.search_completed_by_fundraiser(
+                fundraiser_id,
+                category_id=category_id or None,
+                date_from=date_from or None,
+                date_to=date_to or None,
+            )
         else:
             rows = FundraisingActivityEntity.get_completed_by_fundraiser(fundraiser_id)
         return _ok(data=[dict(r) for r in rows])

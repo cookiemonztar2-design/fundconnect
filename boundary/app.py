@@ -451,9 +451,25 @@ def pm_report_view(period):
 def fr_completed():
     if "user_id" not in session or session["role"] != "Fund Raiser":
         return redirect(url_for("login"))
-    q = request.args.get("q", "").strip()
-    result = FundraisingActivityController.list_completed(session["user_id"], q or None)
-    return render_template("fr_completed.html", activities=result["data"], q=q)
+    
+    category_id = request.args.get("category_id", "").strip()
+    date_from = request.args.get("date_from", "").strip()
+    date_to = request.args.get("date_to", "").strip()
+
+    result = FundraisingActivityController.list_completed(
+        fundraiser_id=session["user_id"],
+        category_id=category_id or None,
+        date_from=date_from or None,
+        date_to=date_to or None,
+    )
+    cats = FundraisingActivityController.get_categories()["data"]
+
+    return render_template("fr_completed.html",
+                           activities=result["data"],
+                           categories=cats,
+                           selected_category=category_id,
+                           date_from=date_from,
+                           date_to=date_to)
 
 
 @app.route("/fundraiser/completed/<int:aid>")

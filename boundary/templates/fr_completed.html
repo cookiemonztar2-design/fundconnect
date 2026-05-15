@@ -6,13 +6,38 @@
   <h1 class="page-title">Completed Activities</h1>
 </div>
 
-<form method="GET" style="margin-bottom: 20px; display: flex; gap: 8px;">
-  <input type="text" name="q" value="{{ q }}" placeholder="Search by title or category…"
-         style="flex: 1; padding: 9px 12px; border-radius: 8px; border: 1px solid #ddd; font-size: 14px;">
-  <button class="btn" type="submit">Search</button>
-  {% if q %}
-    <a href="{{ url_for('fr_completed') }}" class="btn">Clear</a>
-  {% endif %}
+<!-- Filters -->
+<form method="GET" style="background: #fff; border: 1px solid #e8e6e0; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+  <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 12px; align-items: end;">
+
+    <div class="form-group" style="margin: 0;">
+      <label>Category</label>
+      <select name="category_id">
+        <option value="">All Categories</option>
+        {% for c in categories %}
+          <option value="{{ c.id }}" {{ "selected" if selected_category == (c.id | string) }}>
+            {{ c.name }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-group" style="margin: 0;">
+      <label>Date From</label>
+      <input type="date" name="date_from" value="{{ date_from }}">
+    </div>
+
+    <div class="form-group" style="margin: 0;">
+      <label>Date To</label>
+      <input type="date" name="date_to" value="{{ date_to }}">
+    </div>
+
+    <div style="display: flex; gap: 8px;">
+      <button class="btn btn-primary" type="submit" style="width: auto;">Filter</button>
+      <a href="{{ url_for('fr_completed') }}" class="btn">Clear</a>
+    </div>
+
+  </div>
 </form>
 
 {% if activities %}
@@ -42,7 +67,7 @@
 {% else %}
 <div class="empty-state">
   <div class="empty-icon">✅</div>
-  <p>No completed activities yet.</p>
+  <p>No completed activities found.</p>
 </div>
 {% endif %}
 

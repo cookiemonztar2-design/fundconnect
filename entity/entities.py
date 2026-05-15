@@ -512,18 +512,27 @@ class FundraisingActivityEntity:
             ).fetchall()
 
     @staticmethod
-    def search_completed_by_fundraiser(fundraiser_id, query):
-        like = f"%{query}%"
-        with _get_db() as db:
-            return db.execute(
-                """SELECT fa.*, fc.name AS category_name
+    def search_completed_by_fundraiser(fundraiser_id, category_id=None, date_from=None, date_to=None):
+        query = """SELECT fa.*, fc.name AS category_name
                    FROM fundraising_activity fa
                    LEFT JOIN fra_category fc ON fa.category_id = fc.id
-                   WHERE fa.fundraiser_id=? AND fa.status='Completed'
-                   AND (fa.title LIKE ? OR fc.name LIKE ?)
-                   ORDER BY fa.deadline DESC""",
-                (fundraiser_id, like, like)
-            ).fetchall()
+                   WHERE fa.fundraiser_id=? AND fa.status='Completed'"""
+        params = [fundraiser_id]
+
+        if category_id:
+            query += " AND fa.category_id=?"
+            params.append(category_id)
+        if date_from:
+            query += " AND fa.deadline >= ?"
+            params.append(date_from)
+        if date_to:
+            query += " AND fa.deadline <= ?"
+            params.append(date_to)
+
+        query += " ORDER BY fa.deadline DESC"
+
+        with _get_db() as db:
+            return db.execute(query, params).fetchall()
 
     @staticmethod
     def set_status(activity_id, status):
