@@ -29,13 +29,15 @@
     </thead>
     <tbody>
       {% for a in activities %}
-      <tr>
+      <tr style="cursor: pointer;"
+          onclick="window.location='{{ url_for('d_activity_view', aid=a.id) }}'">
         <td><strong>{{ a.title }}</strong></td>
         <td>{{ a.category_name or '—' }}</td>
         <td>${{ '{:,.0f}'.format(a.target_amount) }}</td>
         <td>{{ a.deadline }}</td>
         <td>
-          <form method="POST" action="{{ url_for('d_toggle_favourite', aid=a.id) }}">
+          <form method="POST" action="{{ url_for('d_toggle_favourite', aid=a.id) }}"
+                onclick="event.stopPropagation()">
             <button type="submit" class="btn btn-sm btn-danger">Remove</button>
           </form>
         </td>
