@@ -195,6 +195,15 @@ class UserAccountEntity:
                 )
             db.commit()
 
+    @staticmethod
+    def delete(account_id):
+        with _get_db() as db:
+            db.execute(
+                "DELETE FROM user_account WHERE id=?",
+                (account_id,)
+            )
+            db.commit()
+
 class UserProfileEntity:
 
     @staticmethod
@@ -261,6 +270,15 @@ class UserProfileEntity:
             db.execute(
                 "UPDATE user_profile SET status=? WHERE id=?",
                 (status, profile_id)
+            )
+            db.commit()
+
+    @staticmethod
+    def delete(profile_id):
+        with _get_db() as db:
+            db.execute(
+                "DELETE FROM user_profile WHERE id=?",
+                (profile_id,)
             )
             db.commit()
 

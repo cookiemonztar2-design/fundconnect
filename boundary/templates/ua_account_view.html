@@ -45,6 +45,10 @@
         {{ "Restore" if account.status == "Suspended" else "Suspend" }}
       </button>
     </form>
+    <form method="POST" action="{{ url_for('ua_account_delete', aid=account.id) }}"
+          onsubmit="return confirm('Permanently delete this account? This cannot be undone.')">
+      <button type="submit" class="btn btn-danger">Delete</button>
+    </form>
   </div>
 
 </div>

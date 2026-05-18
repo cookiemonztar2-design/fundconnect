@@ -52,6 +52,10 @@
         {{ "Restore" if profile.status == "Suspended" else "Suspend" }}
       </button>
     </form>
+    <form method="POST" action="{{ url_for('ua_profile_delete', pid=profile.id) }}"
+          onsubmit="return confirm('Permanently delete this profile? This cannot be undone.')">
+      <button type="submit" class="btn btn-danger">Delete</button>
+    </form>
   </div>
 
 </div>

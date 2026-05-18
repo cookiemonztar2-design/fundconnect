@@ -97,6 +97,18 @@ class UserAccountController:
         verb = "restored" if new_status == "Active" else "suspended"
         return _ok(message=f"Account {verb} successfully.")
 
+    @staticmethod
+    def delete_account(account_id, current_user_id):
+        if account_id == current_user_id:
+            return _err("You cannot delete your own account.")
+        account = UserAccountEntity.get_by_id(account_id)
+        if not account:
+            return _err("Account not found.")
+        if account["role"] == "User Admin":
+            return _err("User Admin accounts cannot be deleted.")
+        UserAccountEntity.delete(account_id)
+        return _ok(message="Account deleted successfully.")
+
 class UserProfileController:
 
     @staticmethod
@@ -149,6 +161,16 @@ class UserProfileController:
         UserProfileEntity.set_status(profile_id, new_status)
         verb = "restored" if new_status == "Active" else "suspended"
         return _ok(message=f"Profile {verb} successfully.")
+
+    @staticmethod
+    def delete_profile(profile_id):
+        profile = UserProfileEntity.get_by_id(profile_id)
+        if not profile:
+            return _err("Profile not found.")
+        if profile["role"] == "User Admin":
+            return _err("User Admin profiles cannot be deleted.")
+        UserProfileEntity.delete(profile_id)
+        return _ok(message="Profile deleted successfully.")
 
 class FundraisingActivityController:
 

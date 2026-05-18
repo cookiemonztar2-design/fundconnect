@@ -213,6 +213,23 @@ def ua_profile_suspend(pid):
     flash(result["message"], "success" if result["success"] else "error")
     return redirect(url_for("ua_profile_view", pid=pid))
 
+@app.route("/admin/accounts/<int:aid>/delete", methods=["POST"])
+def ua_account_delete(aid):
+    if "user_id" not in session or session["role"] != "User Admin":
+        return redirect(url_for("login"))
+    result = UserAccountController.delete_account(aid, session["user_id"])
+    flash(result["message"], "success" if result["success"] else "error")
+    return redirect(url_for("ua_accounts"))
+
+
+@app.route("/admin/profiles/<int:pid>/delete", methods=["POST"])
+def ua_profile_delete(pid):
+    if "user_id" not in session or session["role"] != "User Admin":
+        return redirect(url_for("login"))
+    result = UserProfileController.delete_profile(pid)
+    flash(result["message"], "success" if result["success"] else "error")
+    return redirect(url_for("ua_profiles"))
+
 @app.route("/fundraiser/activities")
 def fr_activities():
     if "user_id" not in session or session["role"] != "Fund Raiser":
